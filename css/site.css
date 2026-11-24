@@ -1,0 +1,143 @@
+/* What Determines Time? — site stylesheet
+   Two modes, chosen by js/app.js on <html>:
+   .mode-plate  wide screens: one engraved 1280 x 800 plate, scaled to fit, on a dark desk
+   .mode-flow   phones, tablets in portrait, short windows: each page reflows into one
+                scrolling column at a narrow design width (420–720 px), then scales to the screen */
+:root {
+  --desk: #17110D;
+  --desk-edge: #2B211A;
+  --paper: #EEE4CF;
+  --muted: #A8957C;
+  --font-serif: 'IM Fell English', Georgia, 'Times New Roman', serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --draw: 440;               /* drawing size in flow mode, set by app.js */
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--desk);
+  background-image: radial-gradient(ellipse at 50% 45%, var(--desk-edge) 0%, var(--desk) 70%);
+  background-attachment: fixed;
+  color: var(--paper);
+  font-family: var(--font-serif);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+dc-c { display: contents; }
+#fit { position: relative; flex-shrink: 0; margin: 0 auto; }
+#stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; background: var(--paper); }
+#stage button:focus-visible, #stage input:focus-visible { outline: 2px solid #C98A2E; outline-offset: 2px; }
+.noscript { max-width: 34em; margin: 15vh auto; padding: 0 24px; font-size: 20px; line-height: 1.5; text-align: center; }
+
+[data-tip] { user-select: none; -webkit-user-select: none; }
+@keyframes wdt-tip-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.wdt-tip-badge { animation: wdt-pulse 2.4s ease-in-out 3; }
+@keyframes wdt-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(201,138,46,0); } 50% { box-shadow: 0 0 0 6px rgba(201,138,46,0.35); } }
+@media (prefers-reduced-motion: reduce) { #stage * { animation-duration: 0.001s !important; transition-duration: 0.001s !important; } }
+
+/* ---------- plate mode ---------- */
+.mode-plate body {
+  overflow: hidden;
+  box-sizing: border-box;
+  padding-block: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mode-plate #fit { box-shadow: 0 18px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(238,228,207,0.08); }
+.mode-plate #stage { width: 1280px; height: 800px; overflow: hidden; }
+.wdt-bar { display: contents; }
+
+/* ---------- flow mode ---------- */
+.mode-flow body { overflow-x: hidden; overflow-y: auto; }
+.mode-flow #stage { overflow: clip; }
+
+/* the shell: page, then its controls stacked above it */
+.mode-flow .wdt-shell {
+  width: 100% !important; height: auto !important; min-height: var(--vh-design, 100vh);
+  overflow: visible !important; display: flex !important; flex-direction: column !important;
+}
+.mode-flow .wdt-faces { flex: 1; display: flex; flex-direction: column; }
+.mode-flow .wdt-bar {
+  order: -3; position: sticky; top: 0; z-index: 30;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding: 10px 14px; padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  background: var(--bar-bg); color: var(--bar-ink);
+  border-bottom: 1px solid var(--bar-ink);
+}
+.mode-flow .wdt-bar > * { position: static !important; left: auto !important; right: auto !important; bottom: auto !important; top: auto !important; transform: none !important; }
+.mode-flow .wdt-bar > button { min-height: 40px !important; padding: 0 12px !important; font-size: 11px !important; }
+.mode-flow .wdt-hud { margin-left: auto; flex-wrap: wrap; row-gap: 2px; padding: 4px 10px !important; font-size: 10px !important; }
+.mode-flow .wdt-navpanel { position: absolute !important; top: calc(100% + 6px) !important; left: 14px !important; z-index: 31; }
+.mode-flow .wdt-banner { flex-basis: 100%; box-sizing: border-box; white-space: normal !important; justify-content: space-between; font-size: 16px !important; }
+.mode-flow .wdt-locked {
+  order: -2; position: relative !important; left: auto !important; top: auto !important; transform: none !important;
+  margin: 10px 14px 0; white-space: normal !important; flex-wrap: wrap; font-size: 16px !important; z-index: 5 !important; box-shadow: none !important;
+}
+.mode-flow .wdt-tip, .mode-flow .wdt-tip-badge {
+  order: -1; position: relative !important; left: auto !important; top: auto !important;
+  margin: 12px 14px 0; z-index: 5 !important;
+}
+.mode-flow .wdt-tip { width: auto !important; }
+.mode-flow .wdt-tip-badge { align-self: flex-start; }
+
+/* every page root becomes a single column */
+.mode-flow .wdt-faces > dc-c > div,
+.mode-flow .wdt-shell > dc-c > div {
+  flex: 1; width: auto !important; height: auto !important;
+  padding: 50px 30px 44px !important; box-sizing: border-box !important;
+  display: flex !important; flex-direction: column !important; gap: 22px !important;
+  align-items: stretch !important; justify-content: flex-start !important;
+  overflow: visible !important; position: relative !important;
+}
+/* side-by-side pages: put the words first, the drawing after */
+.mode-flow .wdt-faces > dc-c > div:not([style*="flex-direction: column"]) { flex-direction: column-reverse !important; justify-content: flex-end !important; }
+/* a printed double rule stands in for the wide ornament */
+.mode-flow .wdt-faces > dc-c > div::before,
+.mode-flow .wdt-shell > dc-c > div::before,
+.mode-flow .wdt-faces > dc-c > div::after,
+.mode-flow .wdt-shell > dc-c > div::after { content: ""; position: absolute; pointer-events: none; }
+.mode-flow .wdt-faces > dc-c > div::before, .mode-flow .wdt-shell > dc-c > div::before { inset: 12px; border: 2px solid currentColor; opacity: 0.85; }
+.mode-flow .wdt-faces > dc-c > div::after, .mode-flow .wdt-shell > dc-c > div::after { inset: 18px; border: 1px solid currentColor; opacity: 0.5; }
+.mode-flow [style*="width: 1280px; height: 800px; pointer-events: none"] { display: none !important; }
+
+/* page bodies */
+.mode-flow [style*="flex: 1; min-height: 0; display: flex; gap: 52px"],
+.mode-flow [style*="flex: 1; min-height: 0; display: flex; gap: 56px"] { flex-direction: column !important; gap: 22px !important; align-items: stretch !important; }
+.mode-flow [style*="grid-template-columns: 236px 540px 236px"] { grid-template-columns: minmax(0, 1fr) !important; row-gap: 22px; justify-items: stretch; }
+.mode-flow [style*="height: 540px; display: flex"] { height: auto !important; gap: 16px !important; }
+.mode-flow [style*="flex: 1; min-width: 0; align-self: stretch"] { flex: none !important; margin-top: 0 !important; width: 100%; }
+.mode-flow [style*="justify-content: space-evenly"] { flex: none !important; gap: 20px !important; }
+.mode-flow [style*="position: absolute; right: 64px; top: 64px; bottom: 56px"] {
+  position: relative !important; inset: auto !important; width: auto !important; padding: 20px !important;
+}
+.mode-flow [style*="position: absolute; left: 113px; top: 92px"],
+.mode-flow [style*="position: absolute; left: 63px; top: 80px"] { position: relative !important; left: auto !important; top: auto !important; align-self: center; }
+.mode-flow [style*="width: 380px; flex-shrink: 0"] { width: auto !important; }
+.mode-flow [style*="grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px"] { grid-template-columns: minmax(0, 1fr) !important; }
+
+/* drawings: shrink to --draw, keep centered, leave room for the hint under them */
+.mode-flow [style^="position: relative; width: 640px; height: 640px"] { zoom: calc(var(--draw) / 640); align-self: center; margin-bottom: 92px; }
+.mode-flow [style^="position: relative; width: 540px; height: 540px"] { zoom: calc(var(--draw) / 540); align-self: center; margin-bottom: 76px; }
+.mode-flow [style^="position: relative; width: 440px; height: 440px"] { zoom: calc(var(--draw) / 440); align-self: center; }
+.mode-flow div:not([style*="transform: scale"]) > [style^="position: relative; width: 500px; height: 500px"] { zoom: calc(var(--draw) / 500); align-self: center; transform: none !important; }
+.mode-flow [style*="translateY(-52px)"] { margin-bottom: 90px; }
+.mode-flow svg[style^="position: relative; flex-shrink: 0; filter"] { width: calc(var(--draw) * 1px); height: calc(var(--draw) * 1px); align-self: center; }
+
+/* literal-to-abstract scale: drop the words, tighten the dots */
+.mode-flow div:has(> button[aria-label="Previous instrument"]) { gap: 8px !important; }
+.mode-flow div:has(> button[aria-label="Previous instrument"]) > span { display: none; }
+.mode-flow [style*="justify-content: space-between; align-items: center; height: 44px"] > button { width: 16px !important; }
+
+/* home: unlock scale wraps, the button takes its own row */
+.mode-flow div:has(> [role="img"][aria-label^="Unlock scale"]) { flex-wrap: wrap; row-gap: 14px; }
+.mode-flow div:has(> [role="img"][aria-label^="Unlock scale"]) > span { display: none; }
+.mode-flow div:has(> [role="img"][aria-label^="Unlock scale"]) > [role="img"] { flex: 1 1 100% !important; }
+.mode-flow div:has(> [role="img"][aria-label^="Unlock scale"]) > button { flex: 1; justify-content: center; }
+.mode-flow [role="img"][aria-label^="Unlock scale"] span[style*="font-size: 10.5px"] { font-size: 8.5px !important; letter-spacing: 0 !important; }
+
+/* small-caps running heads wrap instead of colliding */
+.mode-flow [style*="display: flex; justify-content: space-between; align-items: baseline; font-family: 'IM Fell English SC'"] { flex-wrap: wrap; gap: 2px 14px; }
